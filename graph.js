@@ -44,7 +44,7 @@ class Graph {
 
   moveInRange(move) {
     const [x, y] = move
-    return (x >= 0 && x < 7) && (y >= 0 && y < 7)
+    return (x >= 0 && x <= 7) && (y >= 0 && y <= 7)
   }
 }
 
@@ -66,35 +66,49 @@ class Node {
   unvisitedNeighbors() {
     return this.neighbors.filter((neighbor) => !neighbor.visited)
   }
+
+  unvisitedNeighborsWarnsdorfRanked() {
+    return this.unvisitedNeighbors().sort((fst, snd) => {
+      return fst.neighbors.length - snd.neighbors.length
+    })
+  }
 }
 
-const newGraph = new Graph
-let truePath = []
-// console.log(newGraph.nodes[0][0].neighbors)
-
-const findKnightsTourPath = (position, path = []) => {
+const findKnightsTourPath = (depth, path, position) => {
   const [x, y] = position
   const currentNode = newGraph.nodes[x][y]
   currentNode.visited = true
   path.push(currentNode)
-
-  // base case
-  if (path.length === (SIDE_LENGTH * SIDE_LENGTH)) {
-    truePath = path.map((node) => {
-      return node.position
-    })
+  let done
+  if (depth < SIDE_LENGTH * SIDE_LENGTH) {
+    done = false
+    const potentialMoves = currentNode.unvisitedNeighborsWarnsdorfRanked()
+    let i = 0
+    while (i < potentialMoves.length && !done) {
+      done = findKnightsTourPath(depth + 1, path, potentialMoves[i].position)
+      i += 1
+    }
+    if (!done) {
+      path.pop()
+      currentNode.visited = false
+    }
+  } else {
+    done = true
   }
-
-  // recursive step
-  currentNode.unvisitedNeighbors().forEach((neighbor) => {
-    return findKnightsTourPath(neighbor.position, path)
+  truePath = path.map((node) => {
+    return node.position
   })
+  return done
 }
 
-const run = () => {
-  const startingPosition = [0, 0]
-  findKnightsTourPath(startingPosition)
 
+const newGraph = new Graph
+
+const startingPosition = [0, 0]
+let truePath = []
+findKnightsTourPath(1, [], [0,0])
+
+const run = () => {
   const ul = document.getElementById("list")
   newGraph.nodes.forEach((row, x) => {
     row.forEach((el, y) => {
