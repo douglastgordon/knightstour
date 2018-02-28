@@ -74,34 +74,28 @@ class Node {
   }
 }
 
-const findKnightsTourPath = (depth, path, position) => {
-  const [x, y] = position
-  const currentNode = newGraph.nodes[x][y]
+const findKnightsTourPath = (currentNode, path=[]) => {
   currentNode.visited = true
   path.push(currentNode)
-  let done
-  if (depth < SIDE_LENGTH * SIDE_LENGTH) {
-    done = false
-    const potentialMoves = currentNode.unvisitedNeighborsWarnsdorfRanked()
-    let i = 0
-    while (i < potentialMoves.length && !done) {
-      done = findKnightsTourPath(depth + 1, path, potentialMoves[i].position)
-      i += 1
-    }
+  if (path.length < SIDE_LENGTH * SIDE_LENGTH){ // || !currentNode.neighbors.includes(newGraph.nodes[startingPosition[0][startingPosition[1]]])) {
+    let done = false
+    currentNode.unvisitedNeighborsWarnsdorfRanked().forEach((potentialMove) => {
+      if (!done) {
+        done = findKnightsTourPath(potentialMove, path)
+      }
+    })
     if (!done) {
       path.pop()
       currentNode.visited = false
       return false
     }
-  } else {
-    done = true
   }
   return path
 }
 
 const newGraph = new Graph
-const startingPosition = [0, 0]
-const truePath = findKnightsTourPath(1, [], [0,0]).map((node) => {
+const startingNode = newGraph.nodes[0][0]
+const truePath = findKnightsTourPath(startingNode).map((node) => {
   return node.position
 })
 
