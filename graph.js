@@ -91,22 +91,19 @@ const findKnightsTourPath = (depth, path, position) => {
     if (!done) {
       path.pop()
       currentNode.visited = false
+      return false
     }
   } else {
     done = true
   }
-  truePath = path.map((node) => {
-    return node.position
-  })
-  return done
+  return path
 }
 
-
 const newGraph = new Graph
-
 const startingPosition = [0, 0]
-let truePath = []
-findKnightsTourPath(1, [], [0,0])
+const truePath = findKnightsTourPath(1, [], [0,0]).map((node) => {
+  return node.position
+})
 
 const run = () => {
   const ul = document.getElementById("list")
