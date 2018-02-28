@@ -1,5 +1,3 @@
-// const Node = require('./Node')
-
 const SIDE_LENGTH = 8
 
 class Graph {
@@ -44,7 +42,7 @@ class Graph {
 
   moveInRange(move) {
     const [x, y] = move
-    return (x >= 0 && x <= 7) && (y >= 0 && y <= 7)
+    return (x >= 0 && x < SIDE_LENGTH) && (y >= 0 && y < SIDE_LENGTH)
   }
 }
 
@@ -77,7 +75,7 @@ class Node {
 const findKnightsTourPath = (currentNode, path=[]) => {
   currentNode.visited = true
   path.push(currentNode)
-  if (path.length < SIDE_LENGTH * SIDE_LENGTH){ // || !currentNode.neighbors.includes(newGraph.nodes[startingPosition[0][startingPosition[1]]])) {
+  if (path.length < SIDE_LENGTH * SIDE_LENGTH || (!currentNode.neighbors.includes(startingNode))) {
     let done = false
     currentNode.unvisitedNeighborsWarnsdorfRanked().forEach((potentialMove) => {
       if (!done) {
@@ -91,6 +89,14 @@ const findKnightsTourPath = (currentNode, path=[]) => {
     }
   }
   return path
+}
+
+const randomInt = (max) => {
+  return Math.floor(Math.random() * max)
+}
+
+const randomNode = () => {
+  return newGraph.nodes[randomInt(SIDE_LENGTH)][randomInt(SIDE_LENGTH)]
 }
 
 const newGraph = new Graph
@@ -112,19 +118,31 @@ const run = () => {
       ul.appendChild(li)
     })
   })
+  const moveLength = 1000 // ms
 
   const knight = document.createElement("img")
   knight.src = "knight.png"
   knight.id = "knight-image"
 
-  truePath.forEach((position, idx) => {
-    setTimeout(() => {
-      if (knight.parentNode) { knight.parentNode.innerHTML = "" }
-      const target = document.getElementById(position.join("-"))
-      target.classList.add("visited")
-      target.appendChild(knight)
-    }, 1000 * idx)
-  })
+  const runTour = () => {
+    truePath.forEach((position, idx) => {
+      setTimeout(() => {
+        if (knight.parentNode) { knight.parentNode.innerHTML = "" }
+        const target = document.getElementById(position.join("-"))
+        if (Array.from(target.classList).includes("visited")) {
+          target.classList.remove("visited")
+        } else {
+          target.classList.add("visited")
+        }
+        target.appendChild(knight)
+      }, moveLength * idx)
+    })
+  }
+
+  runTour()
+  setInterval(() => {
+    runTour()
+  }, moveLength * truePath.length)
 }
 
 run()
